@@ -1,0 +1,26 @@
+#  Heavy Datasets (MUST BE IGNORED)
+backend/data/raw/yellow_tripdata_2024-01.parquet
+backend/data/raw/*.zip
+backend/data/raw/*.sbn
+
+#  Generated Database File
+database/nyc_taxi.db
+
+# Python environment & cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# System & IDE files
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store
