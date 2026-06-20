@@ -1,21 +1,6 @@
 """
-app.py  –  NYC Taxi Urban Mobility Explorer
 Flask REST API serving trip data from SQLite database.
 
-Endpoints:
-  GET /api/summary          – dashboard summary stats
-  GET /api/trips            – paginated trip list with filters
-  GET /api/trips/<id>       – single trip detail
-  GET /api/by-hour          – trips grouped by hour
-  GET /api/by-borough       – trips grouped by borough
-  GET /api/by-day           – trips grouped by day of week
-  GET /api/by-payment       – trips grouped by payment type
-  GET /api/top-zones        – top 10 pickup zones
-  GET /api/daily-trend      – daily trip counts and revenue
-  GET /api/dsa-benchmark    – run DSA benchmark and return results
-  GET /api/data-quality     – data cleaning summary
-
-Author: Group 10 · Gabriel Mugisha · Olivier Dusabamahoro · James Kanneh
 """
 
 import sqlite3
@@ -30,7 +15,7 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(BASE, "etl"))
 
 DB         = os.path.join(BASE, "database", "nyc_taxi.db")
-STATS_JSON = os.path.join(BASE, "backend", "data", "processed", "stats.json")
+STATS_JSON = os.path.join(BASE, "data", "processed", "stats.json")
 
 app = Flask(__name__)
 CORS(app)   # allow frontend to call API

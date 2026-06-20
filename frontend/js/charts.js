@@ -1,6 +1,7 @@
 /**
  * Chart.js wrappers for all dashboard visualizations.
  */
+
 const COLORS = {
   yellow: "#f6c90e",
   blue: "#3182ce",
@@ -41,6 +42,7 @@ function renderDailyTrend(data) {
   const labels = data.map((d) => d.pickup_date);
   const trips = data.map((d) => d.trips);
   const revenue = data.map((d) => d.revenue);
+
   charts["daily"] = new Chart(document.getElementById("chart-daily"), {
     type: "line",
     data: {
@@ -94,6 +96,7 @@ function renderPayment(data) {
   destroyChart("payment");
   const labels = data.map((d) => d.label || `Type ${d.payment_type}`);
   const values = data.map((d) => d.trips);
+
   charts["payment"] = new Chart(document.getElementById("chart-payment"), {
     type: "doughnut",
     data: {
@@ -122,6 +125,7 @@ function renderByHour(data) {
   const labels = sorted.map((d) => `${d.hour}:00`);
   const trips = sorted.map((d) => d.trips);
   const fares = sorted.map((d) => d.avg_fare);
+
   charts["hour"] = new Chart(document.getElementById("chart-hour"), {
     type: "bar",
     data: {
@@ -180,6 +184,7 @@ function renderByDay(data) {
         avg_fare: 0,
       },
   );
+
   charts["day"] = new Chart(document.getElementById("chart-day"), {
     type: "bar",
     data: {
@@ -206,6 +211,7 @@ function renderSpeedDist(data) {
   destroyChart("speed");
   const labels = Object.keys(data).map((k) => `${k} mph`);
   const values = Object.values(data);
+
   charts["speed"] = new Chart(document.getElementById("chart-speed"), {
     type: "bar",
     data: {
@@ -240,7 +246,9 @@ function renderSpeedDist(data) {
 function renderByBorough(data) {
   destroyChart("borough");
   destroyChart("borough-rev");
+
   const sorted = [...data].sort((a, b) => b.trips - a.trips);
+
   charts["borough"] = new Chart(document.getElementById("chart-borough"), {
     type: "bar",
     data: {
@@ -261,6 +269,7 @@ function renderByBorough(data) {
       scales: { x: { title: { display: true, text: "Trips" } } },
     },
   });
+
   charts["borough-rev"] = new Chart(
     document.getElementById("chart-borough-rev"),
     {
@@ -290,6 +299,7 @@ function renderByBorough(data) {
 function renderTopZones(data, canvasId = "chart-zones") {
   destroyChart(canvasId);
   const sorted = [...data].sort((a, b) => b.trips - a.trips);
+
   charts[canvasId] = new Chart(document.getElementById(canvasId), {
     type: "bar",
     data: {
@@ -322,6 +332,7 @@ function renderRejection(data) {
   destroyChart("rejection");
   const labels = Object.keys(data).map((k) => k.replace(/_/g, " "));
   const values = Object.values(data);
+
   charts["rejection"] = new Chart(document.getElementById("chart-rejection"), {
     type: "pie",
     data: {

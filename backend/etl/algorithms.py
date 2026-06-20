@@ -1,14 +1,5 @@
 """
-algorithms.py  –  NYC Taxi Urban Mobility Explorer
 Custom algorithm and data structure implementations.
-NO built-in sort(), heapq, Counter, or sort_values used.
-
-Implements:
-  1. QuickSort      – sort trips by fare amount
-  2. MinHeap Top-K  – find top-K busiest pickup zones
-  3. Manual HashMap – count trips per borough
-
-Author: Group 10 · Gabriel Mugisha · Olivier Dusabamahoro · James Kanneh
 """
 
 import time

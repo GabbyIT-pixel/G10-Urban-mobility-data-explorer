@@ -1,7 +1,7 @@
 """
 Unit tests for the ETL cleaning and feature engineering functions.
 
-Run with: python backend/tests/test_clean.py
+Run with:  python backend/tests/test_clean.py
 
 """
 
@@ -65,7 +65,7 @@ def test_identify_issues_counts_correctly():
     assert issues["extreme_fare"] == 1
     assert issues["future_pickup"] == 1
     assert issues["dropoff_before_pickup"] >= 1
-    print("test_identify_issues_counts_correctly PASSED")
+    print(" test_identify_issues_counts_correctly PASSED")
 
 
 def test_clean_removes_bad_records():
@@ -82,7 +82,7 @@ def test_clean_removes_bad_records():
     assert (clean_df["trip_distance"] > 0).all()
     # No zero passengers
     assert (clean_df["passenger_count"] != 0).all()
-    print("test_clean_removes_bad_records PASSED")
+    print(" test_clean_removes_bad_records PASSED")
 
 
 def test_clean_fills_nulls():
@@ -91,7 +91,7 @@ def test_clean_fills_nulls():
 
     assert clean_df["passenger_count"].isna().sum() == 0
     assert clean_df["RatecodeID"].isna().sum() == 0
-    print("test_clean_fills_nulls PASSED")
+    print(" test_clean_fills_nulls PASSED")
 
 
 def test_engineer_adds_derived_features():
@@ -99,7 +99,7 @@ def test_engineer_adds_derived_features():
     clean_df, _ = clean(df)
 
     if len(clean_df) == 0:
-        print(" test_engineer_adds_derived_features SKIPPED (no clean rows in sample)")
+        print("⚠️  test_engineer_adds_derived_features SKIPPED (no clean rows in sample)")
         return
 
     result = engineer(clean_df)
@@ -113,7 +113,7 @@ def test_engineer_adds_derived_features():
 
     # Duration should be positive for all remaining rows
     assert (result["trip_duration_min"] > 0).all()
-    print("test_engineer_adds_derived_features PASSED")
+    print(" test_engineer_adds_derived_features PASSED")
 
 
 def test_airport_flag_detection():
@@ -122,14 +122,14 @@ def test_airport_flag_detection():
     clean_df, _ = clean(df)
 
     if len(clean_df) == 0:
-        print(" test_airport_flag_detection SKIPPED (no clean rows)")
+        print("⚠️  test_airport_flag_detection SKIPPED (no clean rows)")
         return
 
     result = engineer(clean_df)
     jfk_rows = result[result["PULocationID"] == 132]
     if len(jfk_rows) > 0:
         assert jfk_rows["is_airport"].iloc[0] == 1
-    print("test_airport_flag_detection PASSED")
+    print(" test_airport_flag_detection PASSED")
 
 
 def test_speed_filter_removes_impossible_speeds():

@@ -1,5 +1,6 @@
-# G10-Urban-mobility-data-explorer
 # NYC Taxi Urban Mobility Data Explorer
+
+> **Group 10** · ALU Software Engineering · Summative Assessment
 
 A full-stack data platform that cleans, analyzes, and visualizes NYC Yellow Taxi trip data using a custom ETL pipeline, a Flask REST API, manually implemented algorithms, and an interactive dashboard.
 
@@ -169,9 +170,14 @@ pip install pandas pyarrow flask flask-cors
 
 ### 4. Place the data files
 Download from the [NYC TLC website](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page):
-- `yellow_tripdata_2024-01.parquet` → place in `data/raw/`
-- `taxi_zone_lookup.csv` → place in `data/raw/` (already included)
-- `taxi_zones.shp` (+ related files) → place in `data/raw/` (already included)
+- `yellow_tripdata_2024-01.parquet` → place in `backend/data/raw/`
+- `taxi_zone_lookup.csv` → place in `backend/data/raw/` (already included)
+- `taxi_zones.shp` (+ related files) → place in `backend/data/raw/` (already included)
+
+> **Note on data location:** the ETL script resolves paths relative to itself
+> (`backend/etl/clean.py` → looks for `backend/data/raw/`), **not** a top-level
+> `data/` folder. If you see `FileNotFoundError`, double check the files are
+> nested under `backend/data/raw/`, not `data/raw/` at the project root.
 
 ---
 
@@ -210,6 +216,12 @@ cd backend/api
 python app.py
 ```
 API runs on `http://127.0.0.1:5000`
+
+> **Troubleshooting — `sqlite3.OperationalError: no such table: trips`:**
+> This means `clean.py` (Step 1) was never run successfully, or `database/nyc_taxi.db`
+> exists but is 0 bytes / empty. Re-run `python clean.py` from `backend/etl/` and
+> confirm you see `Inserted 49,121 trips` in the output **before** starting the API
+> or running `algorithms.py`.
 
 ### Step 4 — Launch the frontend
 Open `frontend/index.html` with a local server (e.g. VS Code Live Server extension) at `http://127.0.0.1:5500/frontend/index.html`
@@ -331,7 +343,7 @@ python backend/etl/algorithms.py
 
 **Total:** 50,000 raw → 49,121 clean records (98.2% retention rate)
 
-Full dead-letter log: `data/logs/dead_letter.csv`
+Full dead-letter log: `backend/data/logs/dead_letter.csv`
 
 ---
 

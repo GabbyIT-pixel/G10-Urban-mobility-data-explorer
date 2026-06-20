@@ -1,33 +1,24 @@
 /**
+ * dashboard.js  –  NYC Taxi Urban Mobility Explorer
  * Main controller: loads data, updates DOM, handles interactions.
+ * Group 10 · Gabriel Mugisha · Olivier Dusabamahoro · James Kanneh
  */
 
 // ── Formatters ──────────────────────────────────────────────────────────────
 const fmt = {
-  num: (v) => (v ?? 0).toLocaleString(),
-  money: (v) =>
-    `$${(v ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-  dec: (v) => (v ?? 0).toFixed(2),
-  pct: (v, t) => `${((v / t) * 100).toFixed(1)}%`,
+  num:   v => (v ?? 0).toLocaleString(),
+  money: v => `$${(v ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+  dec:   v => (v ?? 0).toFixed(2),
+  pct:   (v, t) => `${((v / t) * 100).toFixed(1)}%`,
 };
 
-const payLabel = {
-  1: "Credit Card",
-  2: "Cash",
-  3: "No Charge",
-  4: "Dispute",
-  5: "Unknown",
-};
+const payLabel = { 1:"Credit Card", 2:"Cash", 3:"No Charge", 4:"Dispute", 5:"Unknown" };
 
 // ── Tab navigation ──────────────────────────────────────────────────────────
-document.querySelectorAll(".tab").forEach((btn) => {
+document.querySelectorAll(".tab").forEach(btn => {
   btn.addEventListener("click", () => {
-    document
-      .querySelectorAll(".tab")
-      .forEach((b) => b.classList.remove("active"));
-    document
-      .querySelectorAll(".tab-content")
-      .forEach((c) => c.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
   });
@@ -36,42 +27,29 @@ document.querySelectorAll(".tab").forEach((btn) => {
 // ── Load Overview Tab ───────────────────────────────────────────────────────
 async function loadOverview() {
   const [summary, trend, payment, airport] = await Promise.all([
-    fetchSummary(),
-    fetchDailyTrend(),
-    fetchByPayment(),
-    fetchAirport(),
+    fetchSummary(), fetchDailyTrend(), fetchByPayment(), fetchAirport()
   ]);
 
   if (summary) {
-    document.getElementById("kpi-trips").textContent = fmt.num(
-      summary.total_trips,
-    );
-    document.getElementById("kpi-revenue").textContent = fmt.money(
-      summary.total_revenue,
-    );
-    document.getElementById("kpi-avg-fare").textContent = fmt.money(
-      summary.avg_fare,
-    );
-    document.getElementById("kpi-avg-dist").textContent =
-      `${fmt.dec(summary.avg_distance)} mi`;
-    document.getElementById("kpi-avg-dur").textContent =
-      `${fmt.dec(summary.avg_duration)} min`;
-    document.getElementById("kpi-airport").textContent = fmt.num(
-      summary.airport_trips,
-    );
-
-    document.getElementById("status-badge").textContent = "● Live";
+    document.getElementById("kpi-trips").textContent   = fmt.num(summary.total_trips);
+    document.getElementById("kpi-revenue").textContent = fmt.money(summary.total_revenue);
+    document.getElementById("kpi-avg-fare").textContent= fmt.money(summary.avg_fare);
+    document.getElementById("kpi-avg-dist").textContent= `${fmt.dec(summary.avg_distance)} mi`;
+    document.getElementById("kpi-avg-dur").textContent = `${fmt.dec(summary.avg_duration)} min`;
+    document.getElementById("kpi-airport").textContent = fmt.num(summary.airport_trips);
+    document.getElementById("status-badge").textContent= "● Live";
     document.getElementById("status-badge").style.background = "#38a169";
   }
 
-  if (trend) renderDailyTrend(trend);
+  if (trend)   renderDailyTrend(trend);
   if (payment) renderPayment(payment);
+
   if (airport) {
     const diff = airport.airport - airport.non_airport;
     document.getElementById("insight-airport").innerHTML =
       `Airport trips average <strong>${fmt.money(airport.airport)}</strong> per fare, compared to 
        <strong>${fmt.money(airport.non_airport)}</strong> for non-airport trips — 
-       a <strong>${fmt.money(Math.abs(diff))}</strong> ${diff > 0 ? "premium" : "discount"}. 
+       a <strong>${fmt.money(Math.abs(diff))}</strong> ${diff > 0 ? "premium" : "discount"}.
        This reflects longer distances and fixed-rate structures for JFK, LaGuardia, and Newark routes.`;
   }
 }
@@ -79,17 +57,12 @@ async function loadOverview() {
 // ── Load Time Patterns Tab ──────────────────────────────────────────────────
 async function loadPatterns() {
   const [hourly, daily, speed] = await Promise.all([
-    fetchByHour(),
-    fetchByDay(),
-    fetchSpeedDist(),
+    fetchByHour(), fetchByDay(), fetchSpeedDist()
   ]);
 
   if (hourly) {
     renderByHour(hourly);
-    const peak = hourly.reduce(
-      (a, b) => (b.trips > a.trips ? b : a),
-      hourly[0],
-    );
+    const peak = hourly.reduce((a, b) => b.trips > a.trips ? b : a, hourly[0]);
     document.getElementById("insight-hour").innerHTML =
       `The busiest hour is <strong>${peak.hour}:00</strong> with 
        <strong>${fmt.num(peak.trips)}</strong> trips and an average fare of 
@@ -104,10 +77,7 @@ async function loadPatterns() {
 
 // ── Load Geography Tab ──────────────────────────────────────────────────────
 async function loadGeography() {
-  const [boroughs, zones] = await Promise.all([
-    fetchByBorough(),
-    fetchTopZones(),
-  ]);
+  const [boroughs, zones] = await Promise.all([fetchByBorough(), fetchTopZones()]);
 
   if (boroughs) {
     renderByBorough(boroughs);
@@ -128,13 +98,14 @@ let currentPage = 1;
 let currentFilters = {};
 
 async function loadTrips(page = 1, filters = {}) {
-  currentPage = page;
+  currentPage    = page;
   currentFilters = filters;
+
   const data = await fetchTrips({ ...filters, page, limit: 20 });
   if (!data) return;
 
   document.getElementById("results-info").textContent =
-    `Showing ${fmt.num((page - 1) * 20 + 1)}–${fmt.num(Math.min(page * 20, data.total))} of ${fmt.num(data.total)} trips`;
+    `Showing ${fmt.num((page-1)*20 + 1)}–${fmt.num(Math.min(page*20, data.total))} of ${fmt.num(data.total)} trips`;
 
   const tbody = document.getElementById("trips-tbody");
   if (!data.trips.length) {
@@ -142,12 +113,10 @@ async function loadTrips(page = 1, filters = {}) {
     return;
   }
 
-  tbody.innerHTML = data.trips
-    .map(
-      (t) => `
+  tbody.innerHTML = data.trips.map(t => `
     <tr>
       <td>${t.trip_id}</td>
-      <td>${t.pickup_datetime?.slice(0, 16) ?? "—"}</td>
+      <td>${t.pickup_datetime?.slice(0,16) ?? "—"}</td>
       <td>${t.pu_borough ?? "—"}<br><small>${t.pu_zone ?? ""}</small></td>
       <td>${t.do_borough ?? "—"}<br><small>${t.do_zone ?? ""}</small></td>
       <td>${fmt.dec(t.trip_distance)} mi</td>
@@ -159,9 +128,7 @@ async function loadTrips(page = 1, filters = {}) {
       <td><span class="badge-${t.payment_type === 1 ? "credit" : "cash"}">${payLabel[t.payment_type] ?? "Other"}</span></td>
       <td>${t.is_airport ? '<span class="badge-airport">✈ Yes</span>' : '<span class="badge-noairport">No</span>'}</td>
     </tr>
-  `,
-    )
-    .join("");
+  `).join("");
 
   renderPagination(data.pages, page);
 }
@@ -180,35 +147,35 @@ function renderPagination(totalPages, current) {
     el.appendChild(b);
   };
 
-  makeBtn("«", 1, false, current === 1);
+  makeBtn("«", 1,           false, current === 1);
   makeBtn("‹", current - 1, false, current === 1);
 
   const start = Math.max(1, current - 2);
-  const end = Math.min(totalPages, current + 2);
+  const end   = Math.min(totalPages, current + 2);
   for (let p = start; p <= end; p++) makeBtn(p, p, p === current);
 
   makeBtn("›", current + 1, false, current === totalPages);
-  makeBtn("»", totalPages, false, current === totalPages);
+  makeBtn("»", totalPages,  false, current === totalPages);
 }
 
 // Filter controls
 document.getElementById("btn-search").addEventListener("click", () => {
   const filters = {
-    borough: document.getElementById("filter-borough").value,
+    borough:      document.getElementById("filter-borough").value,
     payment_type: document.getElementById("filter-payment").value,
-    min_fare: document.getElementById("filter-min-fare").value,
-    max_fare: document.getElementById("filter-max-fare").value,
-    hour: document.getElementById("filter-hour").value,
+    min_fare:     document.getElementById("filter-min-fare").value,
+    max_fare:     document.getElementById("filter-max-fare").value,
+    hour:         document.getElementById("filter-hour").value,
   };
   loadTrips(1, filters);
 });
 
 document.getElementById("btn-reset").addEventListener("click", () => {
-  document.getElementById("filter-borough").value = "";
-  document.getElementById("filter-payment").value = "";
-  document.getElementById("filter-min-fare").value = "";
-  document.getElementById("filter-max-fare").value = "";
-  document.getElementById("filter-hour").value = "";
+  document.getElementById("filter-borough").value   = "";
+  document.getElementById("filter-payment").value   = "";
+  document.getElementById("filter-min-fare").value  = "";
+  document.getElementById("filter-max-fare").value  = "";
+  document.getElementById("filter-hour").value      = "";
   loadTrips(1, {});
 });
 
@@ -216,10 +183,9 @@ async function populateBoroughFilter() {
   const boroughs = await fetchBoroughs();
   if (!boroughs) return;
   const sel = document.getElementById("filter-borough");
-  boroughs.forEach((b) => {
+  boroughs.forEach(b => {
     const opt = document.createElement("option");
-    opt.value = b;
-    opt.textContent = b;
+    opt.value = b; opt.textContent = b;
     sel.appendChild(opt);
   });
 }
@@ -235,7 +201,7 @@ document.getElementById("btn-run-dsa").addEventListener("click", async () => {
   btn.disabled = false;
 
   if (!data) {
-    ["bench-quicksort", "bench-heap", "bench-hashmap"].forEach((id) => {
+    ["bench-quicksort","bench-heap","bench-hashmap"].forEach(id => {
       document.getElementById(id).textContent = "Error running benchmark.";
     });
     return;
@@ -266,64 +232,55 @@ async function loadQuality() {
 
   const grid = document.getElementById("quality-grid");
   const items = [
-    { key: "total_raw", label: "Total Raw Records", warn: false },
-    { key: "negative_fare", label: "Negative Fares", warn: true },
-    { key: "zero_passenger", label: "Zero Passengers", warn: true },
-    { key: "zero_distance", label: "Zero Distance", warn: true },
-    { key: "future_pickup", label: "Future Timestamps", warn: true },
-    { key: "null_passenger", label: "Null Passenger Count", warn: true },
-    { key: "null_ratecode", label: "Null Rate Code", warn: false },
-    { key: "dropoff_before_pickup", label: "Bad Trip Duration", warn: true },
-    { key: "extreme_fare", label: "Extreme Fares (>$500)", warn: true },
-    { key: "extreme_distance", label: "Distance >100 mi", warn: true },
+    { key: "total_raw",            label: "Total Raw Records",     warn: false },
+    { key: "negative_fare",        label: "Negative Fares",        warn: true  },
+    { key: "zero_passenger",       label: "Zero Passengers",       warn: true  },
+    { key: "zero_distance",        label: "Zero Distance",         warn: true  },
+    { key: "future_pickup",        label: "Future Timestamps",     warn: true  },
+    { key: "null_passenger",       label: "Null Passenger Count",  warn: true  },
+    { key: "null_ratecode",        label: "Null Rate Code",        warn: false },
+    { key: "dropoff_before_pickup",label: "Bad Trip Duration",     warn: true  },
+    { key: "extreme_fare",         label: "Extreme Fares (>$500)", warn: true  },
+    { key: "extreme_distance",     label: "Distance >100 mi",      warn: true  },
   ];
 
-  grid.innerHTML = items
-    .map(
-      (item) => `
+  grid.innerHTML = items.map(item => `
     <div class="quality-card ${item.warn && data[item.key] > 0 ? "warn" : "ok"}">
       <div class="q-value">${fmt.num(data[item.key] ?? 0)}</div>
       <div class="q-label">${item.label}</div>
     </div>
-  `,
-    )
-    .join("");
+  `).join("");
 
   // Rejection chart
   const rejData = await apiFetch("/data-quality");
   if (rejData) {
-    const rejectKeys = [
-      "negative_fare",
-      "zero_passenger",
-      "zero_distance",
-      "future_pickup",
-      "dropoff_before_pickup",
-      "extreme_fare",
-    ];
-    const chartData = {};
-    rejectKeys.forEach((k) => {
-      if (rejData[k] > 0) chartData[k] = rejData[k];
-    });
+    const rejectKeys = ["negative_fare","zero_passenger","zero_distance","future_pickup","dropoff_before_pickup","extreme_fare"];
+    const chartData  = {};
+    rejectKeys.forEach(k => { if (rejData[k] > 0) chartData[k] = rejData[k]; });
     renderRejection(chartData);
   }
 }
 
 // ── Bootstrap ───────────────────────────────────────────────────────────────
 (async function init() {
-  await Promise.all([loadOverview(), populateBoroughFilter()]);
+  await Promise.all([
+    loadOverview(),
+    populateBoroughFilter(),
+  ]);
 
   // Lazy load other tabs on first click
   const loaded = { overview: true };
-  document.querySelectorAll(".tab").forEach((btn) => {
+
+  document.querySelectorAll(".tab").forEach(btn => {
     btn.addEventListener("click", async () => {
       const tab = btn.dataset.tab;
       if (loaded[tab]) return;
       loaded[tab] = true;
 
-      if (tab === "patterns") await loadPatterns();
+      if (tab === "patterns")  await loadPatterns();
       if (tab === "geography") await loadGeography();
-      if (tab === "trips") await loadTrips(1, {});
-      if (tab === "quality") await loadQuality();
+      if (tab === "trips")     await loadTrips(1, {});
+      if (tab === "quality")   await loadQuality();
     });
   });
 })();

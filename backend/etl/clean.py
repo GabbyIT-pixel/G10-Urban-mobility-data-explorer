@@ -1,7 +1,5 @@
 """
-clean.py  –  NYC Taxi Urban Mobility Explorer
 Data cleaning, feature engineering, and database loading.
-
 """
 
 import pandas as pd
@@ -187,14 +185,18 @@ def save_db(df, zones):
     CREATE INDEX IF NOT EXISTS idx_airport ON trips(is_airport);
     """)
 
-    # Insert zones
-    cols_to_drop = [c for c in ["Zone", "zone", "Borough", "borough"] if c in zones.columns]
-    zones = zones.dropna(subset=cols_to_drop)
-    cur.execute("DELETE FROM taxi_zones")
-    zones.rename(columns={
+    # Insert zones — fill nulls (e.g. LocationID 264/265 "Unknown"/"N/A" rows
+    # in the official TLC lookup table have no borough/zone/service_zone)
+    zones_clean = zones.rename(columns={
         "LocationID":"location_id","Borough":"borough",
         "Zone":"zone","service_zone":"service_zone"
-    }).to_sql("taxi_zones", conn, if_exists="append", index=False)
+    }).copy()
+    zones_clean["borough"]      = zones_clean["borough"].fillna("Unknown")
+    zones_clean["zone"]         = zones_clean["zone"].fillna("Unknown")
+    zones_clean["service_zone"] = zones_clean["service_zone"].fillna("N/A")
+
+    cur.execute("DELETE FROM taxi_zones")
+    zones_clean.to_sql("taxi_zones", conn, if_exists="append", index=False)
 
     # Insert trips
     cols_map = {
