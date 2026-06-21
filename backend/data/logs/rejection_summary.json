@@ -1,6 +1,10 @@
 {
-  "negative_fare": 199,
-  "zero_passengers": 149,
-  "zero_distance": 100,
-  "future_date": 50
+  "zero_passengers": 115608,
+  "zero_distance": 47351,
+  "negative_fare": 7122,
+  "bad_duration": 6291,
+  "past_date": 441,
+  "future_date": 96,
+  "extreme_distance": 29,
+  "extreme_fare": 9
 }

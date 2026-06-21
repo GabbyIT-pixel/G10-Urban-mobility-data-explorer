@@ -1,491 +1,505 @@
 {
   "summary": {
-    "total_trips": 49121,
-    "total_revenue": 785711.38,
-    "avg_fare": 12.26,
-    "avg_distance": 3.45,
-    "avg_duration": 46.81,
-    "avg_speed": 7.54,
-    "airport_trips": 1069,
-    "avg_tip": 1.07
+    "total_trips": 7485632,
+    "total_revenue": 115574469.41,
+    "avg_fare": 12.17,
+    "avg_distance": 2.82,
+    "avg_duration": 16.65,
+    "avg_speed": 11.7,
+    "airport_trips": 480174,
+    "avg_tip": 1.82
   },
   "data_quality": {
-    "total_raw": 50000,
-    "null_passenger": 300,
-    "zero_passenger": 150,
-    "negative_fare": 200,
-    "zero_distance": 100,
-    "future_pickup": 50,
-    "past_pickup": 0,
-    "dropoff_before_pickup": 50,
-    "extreme_fare": 0,
-    "extreme_distance": 0
+    "total_raw": 7667792,
+    "null_passenger": 0,
+    "zero_passenger": 117381,
+    "negative_fare": 7131,
+    "zero_distance": 54770,
+    "future_pickup": 96,
+    "past_pickup": 441,
+    "dropoff_before_pickup": 6294,
+    "extreme_fare": 34,
+    "extreme_distance": 32
   },
   "by_borough": [
     {
       "borough": "Bronx",
-      "trips": 8003,
-      "revenue": 128350.05,
-      "avg_fare": 12.29,
-      "avg_distance": 3.46
+      "trips": 14209,
+      "revenue": 372061.33,
+      "avg_fare": 23.63,
+      "avg_distance": 6.95
     },
     {
       "borough": "Brooklyn",
-      "trips": 11464,
-      "revenue": 181643.99,
-      "avg_fare": 12.17,
-      "avg_distance": 3.42
+      "trips": 82175,
+      "revenue": 1627902.89,
+      "avg_fare": 16.97,
+      "avg_distance": 4.52
     },
     {
       "borough": "EWR",
-      "trips": 187,
-      "revenue": 2923.2,
-      "avg_fare": 11.93,
-      "avg_distance": 3.28
+      "trips": 77,
+      "revenue": 6867.07,
+      "avg_fare": 71.11,
+      "avg_distance": 3.36
     },
     {
       "borough": "Manhattan",
-      "trips": 12917,
-      "revenue": 208731.37,
-      "avg_fare": 12.39,
-      "avg_distance": 3.49
+      "trips": 6799196,
+      "revenue": 91300668.66,
+      "avg_fare": 10.56,
+      "avg_distance": 2.22
     },
     {
       "borough": "Queens",
-      "trips": 12807,
-      "revenue": 202669.44,
-      "avg_fare": 12.08,
-      "avg_distance": 3.39
+      "trips": 444625,
+      "revenue": 20060644.03,
+      "avg_fare": 35.59,
+      "avg_distance": 11.62
     },
     {
       "borough": "Staten Island",
-      "trips": 3743,
-      "revenue": 61393.32,
-      "avg_fare": 12.62,
-      "avg_distance": 3.6
+      "trips": 285,
+      "revenue": 14649.69,
+      "avg_fare": 43.09,
+      "avg_distance": 13.52
+    },
+    {
+      "borough": "Unknown",
+      "trips": 145065,
+      "revenue": 2191675.74,
+      "avg_fare": 11.92,
+      "avg_distance": 2.58
     }
   ],
   "by_hour": [
     {
       "hour": 0,
-      "trips": 2032,
-      "avg_fare": 12.23,
-      "avg_duration": 45.79
+      "trips": 202688,
+      "avg_fare": 12.99,
+      "avg_duration": 16.13
     },
     {
       "hour": 1,
-      "trips": 1936,
-      "avg_fare": 12.01,
-      "avg_duration": 47.05
+      "trips": 145714,
+      "avg_fare": 12.32,
+      "avg_duration": 15.91
     },
     {
       "hour": 2,
-      "trips": 2082,
-      "avg_fare": 11.95,
-      "avg_duration": 46.64
+      "trips": 106600,
+      "avg_fare": 11.91,
+      "avg_duration": 15.75
     },
     {
       "hour": 3,
-      "trips": 2032,
-      "avg_fare": 12.22,
-      "avg_duration": 46.6
+      "trips": 75869,
+      "avg_fare": 12.48,
+      "avg_duration": 17.05
     },
     {
       "hour": 4,
-      "trips": 2069,
-      "avg_fare": 11.85,
-      "avg_duration": 47.43
+      "trips": 59014,
+      "avg_fare": 14.54,
+      "avg_duration": 18.29
     },
     {
       "hour": 5,
-      "trips": 2099,
-      "avg_fare": 12.5,
-      "avg_duration": 46.82
+      "trips": 72040,
+      "avg_fare": 14.99,
+      "avg_duration": 17.07
     },
     {
       "hour": 6,
-      "trips": 1989,
-      "avg_fare": 12.07,
-      "avg_duration": 46.94
+      "trips": 171792,
+      "avg_fare": 12.27,
+      "avg_duration": 17.81
     },
     {
       "hour": 7,
-      "trips": 2031,
-      "avg_fare": 12.41,
-      "avg_duration": 46.86
+      "trips": 295947,
+      "avg_fare": 11.78,
+      "avg_duration": 19.21
     },
     {
       "hour": 8,
-      "trips": 2108,
-      "avg_fare": 12.34,
-      "avg_duration": 46.71
+      "trips": 363833,
+      "avg_fare": 11.83,
+      "avg_duration": 17.71
     },
     {
       "hour": 9,
-      "trips": 2020,
-      "avg_fare": 12.34,
-      "avg_duration": 46.05
+      "trips": 356479,
+      "avg_fare": 11.89,
+      "avg_duration": 16.96
     },
     {
       "hour": 10,
-      "trips": 1994,
-      "avg_fare": 11.8,
-      "avg_duration": 47.79
+      "trips": 351803,
+      "avg_fare": 11.92,
+      "avg_duration": 16.45
     },
     {
       "hour": 11,
-      "trips": 1993,
-      "avg_fare": 12.21,
-      "avg_duration": 46.08
+      "trips": 365532,
+      "avg_fare": 11.68,
+      "avg_duration": 16.7
     },
     {
       "hour": 12,
-      "trips": 2079,
-      "avg_fare": 12.24,
-      "avg_duration": 47.12
+      "trips": 389961,
+      "avg_fare": 11.85,
+      "avg_duration": 16.39
     },
     {
       "hour": 13,
-      "trips": 2075,
-      "avg_fare": 12.48,
-      "avg_duration": 46.74
+      "trips": 392435,
+      "avg_fare": 12.18,
+      "avg_duration": 16.67
     },
     {
       "hour": 14,
-      "trips": 2113,
-      "avg_fare": 12.34,
-      "avg_duration": 47.22
+      "trips": 420223,
+      "avg_fare": 12.45,
+      "avg_duration": 17.26
     },
     {
       "hour": 15,
-      "trips": 2209,
-      "avg_fare": 12.25,
-      "avg_duration": 46.65
+      "trips": 438701,
+      "avg_fare": 12.38,
+      "avg_duration": 17.89
     },
     {
       "hour": 16,
-      "trips": 2056,
-      "avg_fare": 12.41,
-      "avg_duration": 46.71
+      "trips": 406859,
+      "avg_fare": 12.62,
+      "avg_duration": 17.91
     },
     {
       "hour": 17,
-      "trips": 2030,
-      "avg_fare": 11.94,
-      "avg_duration": 46.74
+      "trips": 454673,
+      "avg_fare": 12.05,
+      "avg_duration": 17.35
     },
     {
       "hour": 18,
-      "trips": 2039,
-      "avg_fare": 12.52,
-      "avg_duration": 47.14
+      "trips": 502140,
+      "avg_fare": 11.56,
+      "avg_duration": 16.43
     },
     {
       "hour": 19,
-      "trips": 1978,
-      "avg_fare": 12.75,
-      "avg_duration": 47.28
+      "trips": 463906,
+      "avg_fare": 11.56,
+      "avg_duration": 15.06
     },
     {
       "hour": 20,
-      "trips": 2091,
-      "avg_fare": 12.56,
-      "avg_duration": 46.77
+      "trips": 413189,
+      "avg_fare": 12.02,
+      "avg_duration": 15.04
     },
     {
       "hour": 21,
-      "trips": 2016,
-      "avg_fare": 12.36,
-      "avg_duration": 46.55
+      "trips": 400283,
+      "avg_fare": 12.47,
+      "avg_duration": 15.2
     },
     {
       "hour": 22,
-      "trips": 2032,
-      "avg_fare": 12.29,
-      "avg_duration": 46.7
+      "trips": 360742,
+      "avg_fare": 12.67,
+      "avg_duration": 15.62
     },
     {
       "hour": 23,
-      "trips": 2018,
-      "avg_fare": 12.06,
-      "avg_duration": 47.16
+      "trips": 275209,
+      "avg_fare": 12.97,
+      "avg_duration": 15.47
     }
   ],
   "by_day": [
     {
       "day_name": "Friday",
-      "trips": 6483,
-      "avg_fare": 12.34,
-      "revenue": 104136.06
+      "trips": 1056332,
+      "avg_fare": 12.28,
+      "revenue": 16521511.82
     },
     {
       "day_name": "Monday",
-      "trips": 7905,
-      "avg_fare": 12.17,
-      "revenue": 125384.7
+      "trips": 882044,
+      "avg_fare": 12.15,
+      "revenue": 13663601.05
     },
     {
       "day_name": "Saturday",
-      "trips": 6270,
-      "avg_fare": 12.16,
-      "revenue": 100182.41
+      "trips": 984919,
+      "avg_fare": 11.49,
+      "revenue": 14113599.0
     },
     {
       "day_name": "Sunday",
-      "trips": 6291,
-      "avg_fare": 12.4,
-      "revenue": 101740.21
+      "trips": 837746,
+      "avg_fare": 12.02,
+      "revenue": 12622690.23
     },
     {
       "day_name": "Thursday",
-      "trips": 6378,
-      "avg_fare": 12.29,
-      "revenue": 102224.61
+      "trips": 1319284,
+      "avg_fare": 12.37,
+      "revenue": 20811163.94
     },
     {
       "day_name": "Tuesday",
-      "trips": 7917,
-      "avg_fare": 12.36,
-      "revenue": 127273.1
+      "trips": 1175172,
+      "avg_fare": 12.4,
+      "revenue": 18519599.37
     },
     {
       "day_name": "Wednesday",
-      "trips": 7877,
-      "avg_fare": 12.11,
-      "revenue": 124770.28
+      "trips": 1230135,
+      "avg_fare": 12.32,
+      "revenue": 19322304.0
     }
   ],
   "by_payment": [
     {
       "payment_type": 1,
       "label": "Credit Card",
-      "trips": 24647,
-      "avg_tip": 2.14,
-      "avg_fare": 12.22
+      "trips": 5377014,
+      "avg_tip": 2.53,
+      "avg_fare": 12.52
     },
     {
       "payment_type": 2,
       "label": "Cash",
-      "trips": 16396,
+      "trips": 2080068,
       "avg_tip": 0.0,
-      "avg_fare": 12.28
+      "avg_fare": 11.27
     },
     {
       "payment_type": 3,
       "label": "No Charge",
-      "trips": 8078,
+      "trips": 21761,
       "avg_tip": 0.0,
-      "avg_fare": 12.33
+      "avg_fare": 13.18
+    },
+    {
+      "payment_type": 4,
+      "label": "Dispute",
+      "trips": 6789,
+      "avg_tip": 0.01,
+      "avg_fare": 14.02
     }
   ],
   "top_pickup_zones": [
     {
-      "zone": "Governor's Island/Ellis Island/Liberty Island",
-      "trips": 587
+      "zone": "Upper East Side South",
+      "trips": 326750
     },
     {
-      "zone": "Corona",
-      "trips": 379
+      "zone": "Upper East Side North",
+      "trips": 317433
     },
     {
-      "zone": "Madison",
-      "trips": 228
+      "zone": "Midtown Center",
+      "trips": 306418
     },
     {
-      "zone": "Gowanus",
-      "trips": 226
+      "zone": "Midtown East",
+      "trips": 271748
+    },
+    {
+      "zone": "Times Sq/Theatre District",
+      "trips": 258138
     },
     {
       "zone": "Penn Station/Madison Sq West",
-      "trips": 222
+      "trips": 254725
     },
     {
-      "zone": "West Chelsea/Hudson Yards",
-      "trips": 218
+      "zone": "Clinton East",
+      "trips": 235887
     },
     {
-      "zone": "South Beach/Dongan Hills",
-      "trips": 215
+      "zone": "Murray Hill",
+      "trips": 234309
     },
     {
-      "zone": "Long Island City/Queens Plaza",
-      "trips": 214
+      "zone": "Union Sq",
+      "trips": 233232
     },
     {
-      "zone": "Two Bridges/Seward Park",
-      "trips": 212
-    },
-    {
-      "zone": "Flatbush/Ditmas Park",
-      "trips": 212
+      "zone": "Lincoln Square East",
+      "trips": 230747
     }
   ],
   "daily_trend": [
     {
-      "pickup_date": "2024-01-01",
-      "trips": 1622,
-      "revenue": 24691.76
+      "pickup_date": "2019-01-01",
+      "trips": 184559,
+      "revenue": 3096891.58
     },
     {
-      "pickup_date": "2024-01-02",
-      "trips": 1603,
-      "revenue": 25262.24
+      "pickup_date": "2019-01-02",
+      "trips": 193233,
+      "revenue": 3156455.87
     },
     {
-      "pickup_date": "2024-01-03",
-      "trips": 1591,
-      "revenue": 25394.68
+      "pickup_date": "2019-01-03",
+      "trips": 217753,
+      "revenue": 3421112.44
     },
     {
-      "pickup_date": "2024-01-04",
-      "trips": 1626,
-      "revenue": 25783.83
+      "pickup_date": "2019-01-04",
+      "trips": 229520,
+      "revenue": 3489571.01
     },
     {
-      "pickup_date": "2024-01-05",
-      "trips": 1616,
-      "revenue": 25865.69
+      "pickup_date": "2019-01-05",
+      "trips": 230942,
+      "revenue": 3266299.54
     },
     {
-      "pickup_date": "2024-01-06",
-      "trips": 1596,
-      "revenue": 25459.88
+      "pickup_date": "2019-01-06",
+      "trips": 203461,
+      "revenue": 3122068.36
     },
     {
-      "pickup_date": "2024-01-07",
-      "trips": 1592,
-      "revenue": 25528.83
+      "pickup_date": "2019-01-07",
+      "trips": 222347,
+      "revenue": 3431039.96
     },
     {
-      "pickup_date": "2024-01-08",
-      "trips": 1564,
-      "revenue": 24837.86
+      "pickup_date": "2019-01-08",
+      "trips": 230708,
+      "revenue": 3548582.91
     },
     {
-      "pickup_date": "2024-01-09",
-      "trips": 1563,
-      "revenue": 25192.02
+      "pickup_date": "2019-01-09",
+      "trips": 248832,
+      "revenue": 3826422.33
     },
     {
-      "pickup_date": "2024-01-10",
-      "trips": 1560,
-      "revenue": 25071.85
+      "pickup_date": "2019-01-10",
+      "trips": 274180,
+      "revenue": 4257636.37
     },
     {
-      "pickup_date": "2024-01-11",
-      "trips": 1580,
-      "revenue": 25505.47
+      "pickup_date": "2019-01-11",
+      "trips": 283545,
+      "revenue": 4418432.43
     },
     {
-      "pickup_date": "2024-01-12",
-      "trips": 1537,
-      "revenue": 24582.68
+      "pickup_date": "2019-01-12",
+      "trips": 258387,
+      "revenue": 3745766.67
     },
     {
-      "pickup_date": "2024-01-13",
-      "trips": 1559,
-      "revenue": 24978.16
+      "pickup_date": "2019-01-13",
+      "trips": 221609,
+      "revenue": 3354003.09
     },
     {
-      "pickup_date": "2024-01-14",
-      "trips": 1560,
-      "revenue": 25298.97
+      "pickup_date": "2019-01-14",
+      "trips": 238095,
+      "revenue": 3744783.51
     },
     {
-      "pickup_date": "2024-01-15",
-      "trips": 1545,
-      "revenue": 24103.2
+      "pickup_date": "2019-01-15",
+      "trips": 259720,
+      "revenue": 4069258.8
     },
     {
-      "pickup_date": "2024-01-16",
-      "trips": 1580,
-      "revenue": 24400.0
+      "pickup_date": "2019-01-16",
+      "trips": 264964,
+      "revenue": 4212355.51
     },
     {
-      "pickup_date": "2024-01-17",
-      "trips": 1540,
-      "revenue": 23161.15
+      "pickup_date": "2019-01-17",
+      "trips": 276655,
+      "revenue": 4411969.07
     },
     {
-      "pickup_date": "2024-01-18",
-      "trips": 1576,
-      "revenue": 25282.43
+      "pickup_date": "2019-01-18",
+      "trips": 259322,
+      "revenue": 4116949.01
     },
     {
-      "pickup_date": "2024-01-19",
-      "trips": 1639,
-      "revenue": 26308.21
+      "pickup_date": "2019-01-19",
+      "trips": 230515,
+      "revenue": 3274608.12
     },
     {
-      "pickup_date": "2024-01-20",
-      "trips": 1534,
-      "revenue": 24367.58
+      "pickup_date": "2019-01-20",
+      "trips": 198127,
+      "revenue": 2768744.24
     },
     {
-      "pickup_date": "2024-01-21",
-      "trips": 1621,
-      "revenue": 25723.48
+      "pickup_date": "2019-01-21",
+      "trips": 187546,
+      "revenue": 2830867.0
     },
     {
-      "pickup_date": "2024-01-22",
-      "trips": 1612,
-      "revenue": 26446.26
+      "pickup_date": "2019-01-22",
+      "trips": 247576,
+      "revenue": 3925487.97
     },
     {
-      "pickup_date": "2024-01-23",
-      "trips": 1577,
-      "revenue": 25821.01
+      "pickup_date": "2019-01-23",
+      "trips": 253900,
+      "revenue": 4055546.04
     },
     {
-      "pickup_date": "2024-01-24",
-      "trips": 1590,
-      "revenue": 25123.55
+      "pickup_date": "2019-01-24",
+      "trips": 274133,
+      "revenue": 4373189.79
     },
     {
-      "pickup_date": "2024-01-25",
-      "trips": 1596,
-      "revenue": 25652.88
+      "pickup_date": "2019-01-25",
+      "trips": 283945,
+      "revenue": 4496559.37
     },
     {
-      "pickup_date": "2024-01-26",
-      "trips": 1691,
-      "revenue": 27379.48
+      "pickup_date": "2019-01-26",
+      "trips": 265075,
+      "revenue": 3826924.67
     },
     {
-      "pickup_date": "2024-01-27",
-      "trips": 1581,
-      "revenue": 25376.79
+      "pickup_date": "2019-01-27",
+      "trips": 214549,
+      "revenue": 3377874.54
     },
     {
-      "pickup_date": "2024-01-28",
-      "trips": 1518,
-      "revenue": 25188.93
+      "pickup_date": "2019-01-28",
+      "trips": 234056,
+      "revenue": 3656910.58
     },
     {
-      "pickup_date": "2024-01-29",
-      "trips": 1562,
-      "revenue": 25305.62
+      "pickup_date": "2019-01-29",
+      "trips": 252609,
+      "revenue": 3879378.11
     },
     {
-      "pickup_date": "2024-01-30",
-      "trips": 1594,
-      "revenue": 26597.83
+      "pickup_date": "2019-01-30",
+      "trips": 269206,
+      "revenue": 4071524.25
     },
     {
-      "pickup_date": "2024-01-31",
-      "trips": 1596,
-      "revenue": 26019.04
+      "pickup_date": "2019-01-31",
+      "trips": 276563,
+      "revenue": 4347256.27
     }
   ],
   "airport_vs_nonairport": {
-    "airport": 11.78,
-    "non_airport": 12.27
+    "airport": 39.6,
+    "non_airport": 10.29
   },
   "speed_distribution": {
-    "0-10": 39104,
-    "10-20": 5704,
-    "20-30": 1891,
-    "30-40": 960,
-    "40+": 1462
+    "0-10": 3649471,
+    "10-20": 3125362,
+    "20-30": 528014,
+    "30-40": 151349,
+    "40+": 31436
   }
 }

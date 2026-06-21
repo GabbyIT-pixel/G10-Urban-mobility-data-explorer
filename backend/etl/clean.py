@@ -1,5 +1,6 @@
 """
 Data cleaning, feature engineering, and database loading.
+
 """
 
 import pandas as pd
@@ -19,11 +20,81 @@ for d in [PROC, LOGS, os.path.dirname(DB)]:
 
 
 # ── 1. LOAD ────────────────────────────────────────────────────────────────────
+def find_trip_data_file():
+    """
+    Locate the trip data file in data/raw/ without hardcoding a specific
+    filename, year, or month. TLC trip files always start with a known
+    prefix (yellow_tripdata, green_tripdata, fhv_tripdata) and end in
+    either .csv or .parquet — we search for any file matching that pattern
+    so the pipeline works regardless of which month/year/format is supplied.
+    """
+    import glob
+
+    patterns = ["*tripdata*.csv", "*tripdata*.parquet"]
+    candidates = []
+    for pattern in patterns:
+        candidates.extend(glob.glob(os.path.join(RAW, pattern)))
+
+    if not candidates:
+        raise FileNotFoundError(
+            f"No trip data file found in {RAW}. "
+            f"Expected a file matching '*tripdata*.csv' or '*tripdata*.parquet' "
+            f"(e.g. yellow_tripdata_2019-01.csv)."
+        )
+
+    if len(candidates) > 1:
+        print(f"      Warning: multiple trip data files found, using the first: {candidates}")
+
+    return sorted(candidates)[0]
+
+
 def load_raw():
     print("[1/6] Loading raw data...")
-    df    = pd.read_parquet(os.path.join(RAW, "yellow_tripdata_2024-01.parquet"))
+
+    trip_file = find_trip_data_file()
+    is_csv    = trip_file.lower().endswith(".csv")
+
+    print(f"      Source: {trip_file} ({'CSV' if is_csv else 'Parquet'})")
+
+    if is_csv:
+        df = pd.read_csv(
+            trip_file,
+            parse_dates=["tpep_pickup_datetime", "tpep_dropoff_datetime"],
+            dtype={
+                "VendorID": "Int64", "passenger_count": "Int64",
+                "RatecodeID": "Int64", "PULocationID": "Int64",
+                "DOLocationID": "Int64", "payment_type": "Int64",
+            },
+        )
+    else:
+        df = pd.read_parquet(trip_file)
+
     zones = pd.read_csv(os.path.join(RAW, "taxi_zone_lookup.csv"))
     print(f"      Raw records : {len(df):,}")
+    print(f"      Raw columns : {list(df.columns)}")
+
+    # Real TLC files vary by year/month (Airport_fee/airport_fee capitalization
+    # changes, and some files omit it entirely depending on when congestion/
+    # airport surcharges were introduced). Normalize so the rest of the
+    # pipeline always sees the same lowercase keys regardless of source file.
+    rename_map = {}
+    for col in df.columns:
+        if col.lower() == "airport_fee":
+            rename_map[col] = "airport_fee"
+        elif col.lower() == "congestion_surcharge":
+            rename_map[col] = "congestion_surcharge"
+    df = df.rename(columns=rename_map)
+
+    # Some files omit airport_fee/congestion_surcharge entirely, or include
+    # the column with all-null values (the surcharge didn't exist yet for
+    # that reporting period). Default both to 0 so downstream code never
+    # KeyErrors or carries NaN into fare calculations.
+    for required_col in ["airport_fee", "congestion_surcharge"]:
+        if required_col not in df.columns:
+            print(f"      Note: '{required_col}' not present in this file — defaulting to 0")
+            df[required_col] = 0.0
+        else:
+            df[required_col] = df[required_col].fillna(0.0)
 
     df = df.merge(zones.rename(columns={
         "LocationID":"PULocationID","Borough":"pu_borough",
@@ -39,15 +110,33 @@ def load_raw():
 
 
 # ── 2. IDENTIFY ISSUES ────────────────────────────────────────────────────────
+def get_expected_month_window(df):
+    """
+    Determine the valid pickup-date window from the data itself rather than
+    hardcoding a specific month/year. We find the *mode* of (year, month)
+    across all pickups — the single most common reporting month in the
+    file — and treat that exact calendar month as the only valid window.
+    Any record outside it (even by one day) is rejected as a temporal
+    anomaly, so the dashboard never displays a date range wider than the
+    file's actual reporting month.
+    """
+    year_month   = df["tpep_pickup_datetime"].dt.to_period("M")
+    dominant     = year_month.mode().iloc[0]
+    window_start = dominant.start_time
+    window_end   = dominant.end_time.normalize() + pd.Timedelta(days=1)
+    return window_start, window_end
+
+
 def identify_issues(df):
+    window_start, window_end = get_expected_month_window(df)
     return {
         "total_raw"           : int(len(df)),
         "null_passenger"      : int(df["passenger_count"].isna().sum()),
         "zero_passenger"      : int((df["passenger_count"]==0).sum()),
         "negative_fare"       : int((df["fare_amount"]<0).sum()),
         "zero_distance"       : int((df["trip_distance"]<=0).sum()),
-        "future_pickup"       : int((df["tpep_pickup_datetime"]>pd.Timestamp("2024-02-01")).sum()),
-        "past_pickup"         : int((df["tpep_pickup_datetime"]<pd.Timestamp("2024-01-01")).sum()),
+        "future_pickup"       : int((df["tpep_pickup_datetime"]>=window_end).sum()),
+        "past_pickup"         : int((df["tpep_pickup_datetime"]<window_start).sum()),
         "dropoff_before_pickup": int((df["tpep_dropoff_datetime"]<=df["tpep_pickup_datetime"]).sum()),
         "extreme_fare"        : int((df["fare_amount"]>500).sum()),
         "extreme_distance"    : int((df["trip_distance"]>100).sum()),
@@ -61,14 +150,18 @@ def clean(df):
     mask     = pd.Series(False, index=df.index)
     reasons  = pd.Series("", index=df.index)
 
+    window_start, window_end = get_expected_month_window(df)
+    print(f"      Reporting month detected: {window_start.strftime('%Y-%m')} "
+          f"(valid window {window_start.date()} to {window_end.date()})")
+
     def flag(condition, reason):
         nonlocal mask, reasons
         new = condition & ~mask
         mask   |= condition
         reasons[new] = reason
 
-    flag(df["tpep_pickup_datetime"] > pd.Timestamp("2024-02-01"), "future_date")
-    flag(df["tpep_pickup_datetime"] < pd.Timestamp("2024-01-01"), "past_date")
+    flag(df["tpep_pickup_datetime"] >= window_end,  "future_date")
+    flag(df["tpep_pickup_datetime"] <  window_start, "past_date")
     flag(df["tpep_dropoff_datetime"] <= df["tpep_pickup_datetime"],  "bad_duration")
     flag(df["fare_amount"] < 0,       "negative_fare")
     flag(df["trip_distance"] <= 0,    "zero_distance")
