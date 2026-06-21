@@ -138,7 +138,9 @@ G10-Urban-mobility-data-explorer/
 │       └── dashboard.js       – main controller
 │
 ├── docs/
-│   └── architecture.png      – system diagram
+│   ├── architecture.png      – system diagram
+│   ├── erd.png               – database entity-relationship diagram
+│   └── technical_report.pdf  – problem framing, architecture, algorithms, insights, reflection
 │
 └── screenshots/              – test evidence
 ```
@@ -356,6 +358,8 @@ Full dead-letter log: `backend/data/logs/dead_letter.csv`
 ## AI Usage Disclosure
 
 In accordance with the assignment's academic integrity policy, AI tools were used only to assist in writing this README file. All code, database design, algorithm implementation, and insights were produced independently by the team.
+
+Chat reference: https://claude.ai/share/PLACEHOLDER-ADD-SHARE-LINK
 
 ---
 
