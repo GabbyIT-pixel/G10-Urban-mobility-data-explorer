@@ -359,8 +359,7 @@ Full dead-letter log: `backend/data/logs/dead_letter.csv`
 
 In accordance with the assignment's academic integrity policy, AI tools were used only to assist in writing this README file. All code, database design, algorithm implementation, and insights were produced independently by the team.
 
-Chat reference: https://claude.ai/share/PLACEHOLDER-ADD-SHARE-LINK
+Chat reference: [(https://chatgpt.com/share/6a387ff0-6b70-83ea-8f0c-a4ad14348fef)]
 
-Chat reference: https://claude.ai/share/PLACEHOLDER-ADD-SHARE-LINK
 
 ---
