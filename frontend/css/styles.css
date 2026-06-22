@@ -1,4 +1,4 @@
-/* ── Reset & Base ─────────────────────────────────────────────────────────── */
+/* reset and base styles */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -27,7 +27,7 @@ body {
   min-height: 100vh;
 }
 
-/* ── Header ──────────────────────────────────────────────────────────────── */
+/* header */
 .header {
   background: linear-gradient(135deg, var(--dark) 0%, var(--dark3) 100%);
   color: var(--white);
@@ -61,7 +61,7 @@ body {
   font-weight: 600;
 }
 
-/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+/* navigation tabs */
 .tabs {
   background: var(--dark2);
   display: flex;
@@ -84,7 +84,7 @@ body {
 .tab:hover  { color: var(--white); }
 .tab.active { color: var(--yellow); border-bottom-color: var(--yellow); }
 
-/* ── Tab Content ─────────────────────────────────────────────────────────── */
+/* tab content panels */
 .tab-content {
   display: none;
   padding: 28px 32px;
@@ -93,7 +93,7 @@ body {
 }
 .tab-content.active { display: block; }
 
-/* ── KPI Cards ───────────────────────────────────────────────────────────── */
+/* summary cards at the top */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -114,7 +114,7 @@ body {
 .kpi-value { font-size: 1.6rem; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
 .kpi-label { font-size: 0.8rem; color: var(--text2); font-weight: 500; }
 
-/* ── Charts ──────────────────────────────────────────────────────────────── */
+/* chart layout */
 .charts-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
@@ -132,7 +132,7 @@ body {
 .chart-sub       { font-size: 0.78rem; color: var(--text2); margin-bottom: 16px; }
 .chart-card canvas { max-height: 300px; }
 
-/* ── Insight Box ─────────────────────────────────────────────────────────── */
+/* yellow insight callout */
 .insight-box {
   background: linear-gradient(135deg, #fffbeb, #fef3c7);
   border: 1px solid #fbbf24;
@@ -145,7 +145,7 @@ body {
 .insight-box li { margin-left: 20px; margin-bottom: 4px; }
 #insight-airport { font-size: 1rem; font-weight: 500; color: #78350f; }
 
-/* ── Filter Bar ──────────────────────────────────────────────────────────── */
+/* search/filter controls */
 .filter-bar {
   background: var(--white);
   border-radius: var(--radius);
@@ -194,7 +194,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* ── Results Info ────────────────────────────────────────────────────────── */
+/* shows how many rows matched */
 .results-info {
   font-size: 0.85rem;
   color: var(--text2);
@@ -202,7 +202,7 @@ body {
   padding: 0 4px;
 }
 
-/* ── Data Table ──────────────────────────────────────────────────────────── */
+/* trips data table */
 .table-wrap { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow); }
 .data-table {
   width: 100%;
@@ -221,7 +221,7 @@ body {
 .badge-credit     { background:#c6f6d5; color:#276749; padding:2px 8px; border-radius:10px; font-size:0.75rem; }
 .badge-cash       { background:#fefcbf; color:#975a16; padding:2px 8px; border-radius:10px; font-size:0.75rem; }
 
-/* ── Pagination ──────────────────────────────────────────────────────────── */
+/* page controls below the table */
 .pagination {
   display: flex;
   gap: 8px;
@@ -245,7 +245,7 @@ body {
   font-weight: 600;
 }
 
-/* ── DSA Tab ─────────────────────────────────────────────────────────────── */
+/* algorithms tab */
 .dsa-header {
   text-align: center;
   margin-bottom: 28px;
@@ -306,7 +306,7 @@ body {
   white-space: pre-wrap;
 }
 
-/* ── Data Quality ────────────────────────────────────────────────────────── */
+/* data quality section */
 .quality-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -325,7 +325,7 @@ body {
 .quality-card.warn .q-value { color: var(--red); }
 .quality-card.ok   .q-value { color: var(--green); }
 
-/* ── Footer ──────────────────────────────────────────────────────────────── */
+/* footer */
 .footer {
   background: var(--dark);
   color: #718096;
@@ -336,7 +336,7 @@ body {
   line-height: 1.8;
 }
 
-/* ── Responsive ──────────────────────────────────────────────────────────── */
+/* mobile adjustments */
 @media (max-width: 768px) {
   .tab-content { padding: 16px; }
   .charts-row  { grid-template-columns: 1fr; }
