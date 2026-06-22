@@ -1,6 +1,4 @@
-/**
- * Chart.js wrappers for all dashboard visualizations.
- */
+// charts.js - Chart.js render functions for each dashboard section
 
 const COLORS = {
   yellow: "#f6c90e",
@@ -36,7 +34,7 @@ function destroyChart(id) {
   }
 }
 
-// ── Daily Trend Line Chart ──────────────────────────────────────────────────
+// trips and revenue over time
 function renderDailyTrend(data) {
   destroyChart("daily");
   const labels = data.map((d) => d.pickup_date);
@@ -91,7 +89,7 @@ function renderDailyTrend(data) {
   });
 }
 
-// ── Payment Doughnut ───────────────────────────────────────────────────────
+// payment type breakdown
 function renderPayment(data) {
   destroyChart("payment");
   const labels = data.map((d) => d.label || `Type ${d.payment_type}`);
@@ -118,7 +116,7 @@ function renderPayment(data) {
   });
 }
 
-// ── Hourly Bar Chart ───────────────────────────────────────────────────────
+// trips and avg fare by hour of day
 function renderByHour(data) {
   destroyChart("hour");
   const sorted = [...data].sort((a, b) => a.hour - b.hour);
@@ -164,7 +162,7 @@ function renderByHour(data) {
   });
 }
 
-// ── Day of Week Bar ────────────────────────────────────────────────────────
+// trips by day of week
 function renderByDay(data) {
   destroyChart("day");
   const order = [
@@ -206,7 +204,7 @@ function renderByDay(data) {
   });
 }
 
-// ── Speed Distribution ─────────────────────────────────────────────────────
+// speed distribution buckets
 function renderSpeedDist(data) {
   destroyChart("speed");
   const labels = Object.keys(data).map((k) => `${k} mph`);
@@ -242,7 +240,7 @@ function renderSpeedDist(data) {
   });
 }
 
-// ── Borough Bar Charts ─────────────────────────────────────────────────────
+// trips and revenue by borough
 function renderByBorough(data) {
   destroyChart("borough");
   destroyChart("borough-rev");
@@ -295,7 +293,7 @@ function renderByBorough(data) {
   );
 }
 
-// ── Top Zones Horizontal Bar ───────────────────────────────────────────────
+// top pickup zones horizontal bar
 function renderTopZones(data, canvasId = "chart-zones") {
   destroyChart(canvasId);
   const sorted = [...data].sort((a, b) => b.trips - a.trips);
@@ -327,7 +325,7 @@ function renderTopZones(data, canvasId = "chart-zones") {
   });
 }
 
-// ── Rejection Pie ──────────────────────────────────────────────────────────
+// data quality rejection reasons pie
 function renderRejection(data) {
   destroyChart("rejection");
   const labels = Object.keys(data).map((k) => k.replace(/_/g, " "));
@@ -358,7 +356,7 @@ function renderRejection(data) {
   });
 }
 
-// ── DSA Zones ─────────────────────────────────────────────────────────────
+// top zones chart used on the algorithms tab
 function renderDSAZones(data) {
   if (!data || !data.top_zones) return;
   renderTopZones(
