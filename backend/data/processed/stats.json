@@ -21,7 +21,18 @@
     "dropoff_before_pickup": 6294,
     "extreme_fare": 34,
     "extreme_distance": 32,
-    "fare_mismatch": 15944
+    "fare_mismatch": 15944,
+    "shapefile_validated": true,
+    "zone_polygons_loaded": 263,
+    "location_ids_in_trips": 263,
+    "location_ids_unmatched": 5,
+    "unmatched_ids_sample": [
+      57,
+      104,
+      105,
+      264,
+      265
+    ]
   },
   "by_borough": [
     {

@@ -9,6 +9,12 @@ import sqlite3
 import json
 import os
 
+try:
+    import shapefile  # pyshp — pure-Python, no GDAL dependency
+    HAS_SHAPEFILE_LIB = True
+except ImportError:
+    HAS_SHAPEFILE_LIB = False
+
 BASE    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW     = os.path.join(BASE, "data", "raw")
 PROC    = os.path.join(BASE, "data", "processed")
@@ -21,13 +27,7 @@ for d in [PROC, LOGS, os.path.dirname(DB)]:
 
 # ── 1. LOAD ────────────────────────────────────────────────────────────────────
 def find_trip_data_file():
-    """
-    Locate the trip data file in data/raw/ without hardcoding a specific
-    filename, year, or month. TLC trip files always start with a known
-    prefix (yellow_tripdata, green_tripdata, fhv_tripdata) and end in
-    either .csv or .parquet — we search for any file matching that pattern
-    so the pipeline works regardless of which month/year/format is supplied.
-    """
+
     import glob
 
     patterns = ["*tripdata*.csv", "*tripdata*.parquet"]
@@ -73,10 +73,6 @@ def load_raw():
     print(f"      Raw records : {len(df):,}")
     print(f"      Raw columns : {list(df.columns)}")
 
-    # Real TLC files vary by year/month (Airport_fee/airport_fee capitalization
-    # changes, and some files omit it entirely depending on when congestion/
-    # airport surcharges were introduced). Normalize so the rest of the
-    # pipeline always sees the same lowercase keys regardless of source file.
     rename_map = {}
     for col in df.columns:
         if col.lower() == "airport_fee":
@@ -85,10 +81,6 @@ def load_raw():
             rename_map[col] = "congestion_surcharge"
     df = df.rename(columns=rename_map)
 
-    # Some files omit airport_fee/congestion_surcharge entirely, or include
-    # the column with all-null values (the surcharge didn't exist yet for
-    # that reporting period). Default both to 0 so downstream code never
-    # KeyErrors or carries NaN into fare calculations.
     for required_col in ["airport_fee", "congestion_surcharge"]:
         if required_col not in df.columns:
             print(f"      Note: '{required_col}' not present in this file — defaulting to 0")
@@ -107,6 +99,65 @@ def load_raw():
     }), on="DOLocationID", how="left")
 
     return df, zones
+
+
+def load_taxi_zones_shapefile():
+    shp_path = os.path.join(RAW, "taxi_zones.shp")
+
+    if not HAS_SHAPEFILE_LIB:
+        print("      Note: pyshp not installed — skipping spatial validation "
+              "(pip install pyshp to enable)")
+        return None
+
+    if not os.path.exists(shp_path):
+        print(f"      Note: {shp_path} not found — skipping spatial validation")
+        return None
+
+    sf = shapefile.Reader(shp_path)
+    rows = []
+    for shape_rec in sf.iterShapeRecords():
+        rec = shape_rec.record.as_dict()
+        bbox = shape_rec.shape.bbox
+        rows.append({
+            "location_id": rec.get("LocationID"),
+            "zone":        rec.get("zone"),
+            "borough":     rec.get("borough"),
+            "shape_area":  rec.get("Shape_Area"),
+            "bbox_xmin":   bbox[0] if bbox else None,
+            "bbox_ymin":   bbox[1] if bbox else None,
+            "bbox_xmax":   bbox[2] if bbox else None,
+            "bbox_ymax":   bbox[3] if bbox else None,
+        })
+
+    zones_geo = pd.DataFrame(rows)
+    print(f"      Loaded taxi_zones.shp: {len(zones_geo)} zone polygons")
+    return zones_geo
+
+
+def validate_zones_against_shapefile(df, zones_geo):
+    """
+    Cross-check every PULocationID / DOLocationID actually used in the trip
+    data against the real polygon geometries from taxi_zones.shp, rather
+    than only trusting the flat taxi_zone_lookup.csv mapping. A LocationID
+    that appears in trips but has no corresponding polygon would indicate
+    a genuine data-integrity issue (e.g. a deprecated or out-of-range zone
+    ID) — this is exactly the kind of check the spatial metadata source
+    is for.
+    """
+    if zones_geo is None:
+        return {"shapefile_validated": False}
+
+    known_ids = set(zones_geo["location_id"].dropna().astype(int))
+    used_ids  = set(df["PULocationID"].dropna().astype(int)) | set(df["DOLocationID"].dropna().astype(int))
+
+    unmatched = used_ids - known_ids
+    return {
+        "shapefile_validated":    True,
+        "zone_polygons_loaded":   int(len(zones_geo)),
+        "location_ids_in_trips":  int(len(used_ids)),
+        "location_ids_unmatched": int(len(unmatched)),
+        "unmatched_ids_sample":   sorted(list(unmatched))[:10],
+    }
 
 
 # ── 2. IDENTIFY ISSUES ────────────────────────────────────────────────────────
@@ -153,9 +204,9 @@ def fare_component_mismatch(df, tolerance=1.0):
     return (df["total_amount"].fillna(0) - components).abs() > tolerance
 
 
-def identify_issues(df):
+def identify_issues(df, zones_geo=None):
     window_start, window_end = get_expected_month_window(df)
-    return {
+    issues = {
         "total_raw"           : int(len(df)),
         "null_passenger"      : int(df["passenger_count"].isna().sum()),
         "zero_passenger"      : int((df["passenger_count"]==0).sum()),
@@ -168,6 +219,8 @@ def identify_issues(df):
         "extreme_distance"    : int((df["trip_distance"]>100).sum()),
         "fare_mismatch"       : int(fare_component_mismatch(df).sum()),
     }
+    issues.update(validate_zones_against_shapefile(df, zones_geo))
+    return issues
 
 
 # ── 3. CLEAN ──────────────────────────────────────────────────────────────────
@@ -237,11 +290,6 @@ def engineer(df):
         df["fare_amount"] / df["trip_distance"]
     ).replace([np.inf, -np.inf], 0).round(2)
 
-    # Derived feature 4: tip as a percentage of the base fare. Computed against
-    # fare_amount (not total_amount) so tolls/surcharges don't dilute the
-    # signal — this is the number riders actually think of as "the tip %".
-    # Cash trips report tip_amount = 0 by TLC convention, which correctly shows
-    # as a 0% tip rather than a missing value.
     df["tip_percentage"] = (
         df["tip_amount"] / df["fare_amount"] * 100
     ).replace([np.inf, -np.inf], 0).fillna(0).round(2)
@@ -465,7 +513,8 @@ def run():
     print("NYC Taxi ETL Pipeline  –  Group 10")
     print("=" * 60)
     df, zones = load_raw()
-    issues    = identify_issues(df)
+    zones_geo = load_taxi_zones_shapefile()
+    issues    = identify_issues(df, zones_geo)
     df, rej   = clean(df)
     df        = engineer(df)
     save_db(df, zones)
