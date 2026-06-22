@@ -343,3 +343,14 @@ body {
   .kpi-grid    { grid-template-columns: repeat(2, 1fr); }
   .filter-bar  { flex-direction: column; }
 }
+
+/* benchmark result indicator - replaces checkmark emoji */
+.match-ok {
+  display: inline-block;
+  background: var(--green);
+  color: var(--white);
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}

@@ -1,8 +1,6 @@
-/**
- * Main controller: loads data, updates DOM, handles interactions.
- */
+// dashboard.js - main controller: loads data, updates DOM, handles interactions
 
-// ── Formatters ──────────────────────────────────────────────────────────────
+// number and currency formatters used throughout
 const fmt = {
   num: (v) => (v ?? 0).toLocaleString(),
   money: (v) =>
@@ -19,7 +17,7 @@ const payLabel = {
   5: "Unknown",
 };
 
-// ── Tab navigation ──────────────────────────────────────────────────────────
+// tab switching
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.addEventListener("click", () => {
     document
@@ -33,7 +31,7 @@ document.querySelectorAll(".tab").forEach((btn) => {
   });
 });
 
-// ── Load Overview Tab ───────────────────────────────────────────────────────
+// overview tab
 async function loadOverview() {
   const [summary, trend, payment, airport] = await Promise.all([
     fetchSummary(),
@@ -112,7 +110,7 @@ async function loadOverview() {
   }
 }
 
-// ── Load Time Patterns Tab ──────────────────────────────────────────────────
+// time patterns tab
 async function loadPatterns() {
   const [hourly, daily, speed] = await Promise.all([
     fetchByHour(),
@@ -138,7 +136,7 @@ async function loadPatterns() {
   if (speed) renderSpeedDist(speed);
 }
 
-// ── Load Geography Tab ──────────────────────────────────────────────────────
+// geography tab
 async function loadGeography() {
   const [boroughs, zones] = await Promise.all([
     fetchByBorough(),
@@ -159,7 +157,7 @@ async function loadGeography() {
   if (zones) renderTopZones(zones);
 }
 
-// ── Trip Explorer ───────────────────────────────────────────────────────────
+// trip explorer with filters and pagination
 let currentPage = 1;
 let currentFilters = {};
 
@@ -194,7 +192,7 @@ async function loadTrips(page = 1, filters = {}) {
       <td>${fmt.money(t.tip_amount)}</td>
       <td>${fmt.money(t.total_amount)}</td>
       <td><span class="badge-${t.payment_type === 1 ? "credit" : "cash"}">${payLabel[t.payment_type] ?? "Other"}</span></td>
-      <td>${t.is_airport ? '<span class="badge-airport">✈ Yes</span>' : '<span class="badge-noairport">No</span>'}</td>
+      <td>${t.is_airport ? '<span class="badge-airport">Airport</span>' : '<span class="badge-noairport">No</span>'}</td>
     </tr>
   `,
     )
@@ -228,7 +226,7 @@ function renderPagination(totalPages, current) {
   makeBtn("»", totalPages, false, current === totalPages);
 }
 
-// Filter controls
+// filter controls
 document.getElementById("btn-search").addEventListener("click", () => {
   const filters = {
     borough: document.getElementById("filter-borough").value,
@@ -261,7 +259,7 @@ async function populateBoroughFilter() {
   });
 }
 
-// ── DSA Benchmark Tab ───────────────────────────────────────────────────────
+// algorithms benchmark tab
 document.getElementById("btn-run-dsa").addEventListener("click", async () => {
   const btn = document.getElementById("btn-run-dsa");
   btn.textContent = "Running…";
@@ -281,7 +279,7 @@ document.getElementById("btn-run-dsa").addEventListener("click", async () => {
   document.getElementById("bench-quicksort").innerHTML =
     `Manual QuickSort : <strong>${data.quicksort_ms} ms</strong><br>
      Python sort()    : ${data.python_sort_ms} ms<br>
-     Results match    : ✅`;
+     Results match    : <span class="match-ok">OK</span>`;
 
   document.getElementById("bench-heap").innerHTML =
     `Manual MinHeap   : <strong>${data.heap_ms} ms</strong> O(n log k)<br>
@@ -291,12 +289,12 @@ document.getElementById("btn-run-dsa").addEventListener("click", async () => {
   document.getElementById("bench-hashmap").innerHTML =
     `Manual HashMap   : <strong>${data.hashmap_ms} ms</strong><br>
      Python dict      : ${data.dict_ms} ms<br>
-     Results match    : ✅`;
+     Results match    : <span class="match-ok">OK</span>`;
 
   if (data.top_zones) renderDSAZones(data);
 });
 
-// ── Data Quality Tab ────────────────────────────────────────────────────────
+// data quality tab
 async function loadQuality() {
   const data = await fetchDataQuality();
   if (!data) return;
@@ -326,7 +324,7 @@ async function loadQuality() {
     )
     .join("");
 
-  // Rejection chart
+  // rejection breakdown chart
   const rejData = await apiFetch("/data-quality");
   if (rejData) {
     const rejectKeys = [
@@ -345,11 +343,10 @@ async function loadQuality() {
   }
 }
 
-// ── Bootstrap ───────────────────────────────────────────────────────────────
+// init - load overview immediately, lazy load everything else on tab click
 (async function init() {
   await Promise.all([loadOverview(), populateBoroughFilter()]);
 
-  // Lazy load other tabs on first click
   const loaded = { overview: true };
 
   document.querySelectorAll(".tab").forEach((btn) => {
