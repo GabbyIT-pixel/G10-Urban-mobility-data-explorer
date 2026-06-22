@@ -142,8 +142,11 @@ def fare_component_mismatch(df, tolerance=1.0):
     """
     components = (
         df["fare_amount"].fillna(0)
+        + df["extra"].fillna(0)
+        + df["mta_tax"].fillna(0)
         + df["tip_amount"].fillna(0)
         + df["tolls_amount"].fillna(0)
+        + df["improvement_surcharge"].fillna(0)
         + df["congestion_surcharge"].fillna(0)
         + df["airport_fee"].fillna(0)
     )
@@ -302,7 +305,7 @@ def save_db(df, zones):
         is_airport            INTEGER DEFAULT 0,
         pu_borough            TEXT,
         do_borough            TEXT,
-        pu_zone               TEXT,
+        pu_zone                TEXT,
         do_zone               TEXT
     );
 

@@ -1,6 +1,7 @@
 {
   "zero_passengers": 115608,
   "zero_distance": 47351,
+  "fare_mismatch": 15766,
   "negative_fare": 7122,
   "bad_duration": 6291,
   "past_date": 441,
