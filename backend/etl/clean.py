@@ -127,6 +127,29 @@ def get_expected_month_window(df):
     return window_start, window_end
 
 
+def fare_component_mismatch(df, tolerance=1.0):
+    """
+    Identify trips whose total_amount does not reconcile with the sum of its
+    component charges (fare + tip + tolls + congestion surcharge + airport fee)
+    beyond a small tolerance.
+
+    Real TLC files contain rows where total_amount was recorded independently
+    of the line items and the two disagree (meter glitches, manual overrides,
+    refund adjustments). The existing pipeline checks each charge in isolation
+    but never verifies they add up, so these inconsistent fares slip through and
+    distort revenue totals on the dashboard. The tolerance (default $1.00)
+    absorbs ordinary rounding without flagging genuine, well-formed trips.
+    """
+    components = (
+        df["fare_amount"].fillna(0)
+        + df["tip_amount"].fillna(0)
+        + df["tolls_amount"].fillna(0)
+        + df["congestion_surcharge"].fillna(0)
+        + df["airport_fee"].fillna(0)
+    )
+    return (df["total_amount"].fillna(0) - components).abs() > tolerance
+
+
 def identify_issues(df):
     window_start, window_end = get_expected_month_window(df)
     return {
@@ -140,6 +163,7 @@ def identify_issues(df):
         "dropoff_before_pickup": int((df["tpep_dropoff_datetime"]<=df["tpep_pickup_datetime"]).sum()),
         "extreme_fare"        : int((df["fare_amount"]>500).sum()),
         "extreme_distance"    : int((df["trip_distance"]>100).sum()),
+        "fare_mismatch"       : int(fare_component_mismatch(df).sum()),
     }
 
 
@@ -168,6 +192,7 @@ def clean(df):
     flag(df["passenger_count"] == 0,  "zero_passengers")
     flag(df["fare_amount"] > 500,     "extreme_fare")
     flag(df["trip_distance"] > 100,   "extreme_distance")
+    flag(fare_component_mismatch(df), "fare_mismatch")
 
     rejected          = df[mask].copy()
     rejected["reason"]= reasons[mask]
@@ -208,6 +233,15 @@ def engineer(df):
     df["fare_per_mile"] = (
         df["fare_amount"] / df["trip_distance"]
     ).replace([np.inf, -np.inf], 0).round(2)
+
+    # Derived feature 4: tip as a percentage of the base fare. Computed against
+    # fare_amount (not total_amount) so tolls/surcharges don't dilute the
+    # signal — this is the number riders actually think of as "the tip %".
+    # Cash trips report tip_amount = 0 by TLC convention, which correctly shows
+    # as a 0% tip rather than a missing value.
+    df["tip_percentage"] = (
+        df["tip_amount"] / df["fare_amount"] * 100
+    ).replace([np.inf, -np.inf], 0).fillna(0).round(2)
 
     # Time features
     df["hour"]        = df["tpep_pickup_datetime"].dt.hour
@@ -261,6 +295,7 @@ def save_db(df, zones):
         trip_duration_min     REAL,
         speed_mph             REAL,
         fare_per_mile         REAL,
+        tip_percentage        REAL,
         hour                  INTEGER,
         day_name              TEXT,
         pickup_date           TEXT,
@@ -311,6 +346,7 @@ def save_db(df, zones):
         "trip_duration_min":"trip_duration_min",
         "speed_mph":"speed_mph",
         "fare_per_mile":"fare_per_mile",
+        "tip_percentage":"tip_percentage",
         "hour":"hour",
         "day_name":"day_name",
         "pickup_date":"pickup_date",
@@ -349,6 +385,7 @@ def save_stats(df, issues):
             "avg_speed"     : round(float(df["speed_mph"].mean()), 2),
             "airport_trips" : int(df["is_airport"].sum()),
             "avg_tip"       : round(float(df["tip_amount"].mean()), 2),
+            "avg_tip_pct"   : round(float(df["tip_percentage"].mean()), 2),
         },
         "data_quality": issues,
         "by_borough": df.groupby("pu_borough").agg(

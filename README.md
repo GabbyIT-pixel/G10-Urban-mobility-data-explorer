@@ -29,8 +29,8 @@ This project ingests NYC Taxi & Limousine Commission (TLC) trip data — a parqu
 |---|---|
 | Data source | `yellow_tripdata_2024-01.parquet` + `taxi_zone_lookup.csv` |
 | Records processed | 50,000 raw → 49,121 clean trips |
-| Data cleaning | Removes negative fares, zero distances, zero passengers, future dates, impossible speeds |
-| Feature engineering | 3+ derived features: trip duration, average speed, fare-per-mile |
+| Data cleaning | Removes negative fares, zero distances, zero passengers, future dates, impossible speeds, inconsistent fare totals |
+| Feature engineering | 4 derived features: trip duration, average speed, fare-per-mile, tip percentage |
 | Database | SQLite with indexed `trips` and `taxi_zones` tables |
 | Backend | Flask REST API with 13 endpoints |
 | Frontend | 6-tab interactive dashboard with Chart.js visualizations |
@@ -269,6 +269,7 @@ CREATE TABLE trips (
     trip_duration_min     REAL,   -- derived feature 1
     speed_mph             REAL,   -- derived feature 2
     fare_per_mile         REAL,   -- derived feature 3
+    tip_percentage        REAL,   -- derived feature 4
     hour                  INTEGER,
     day_name              TEXT,
     pickup_date           TEXT,
@@ -340,6 +341,7 @@ python backend/etl/algorithms.py
 | Zero distance | 100 | Excluded (cancelled/GPS failure) |
 | Future timestamps | 50 | Excluded (temporal anomaly) |
 | Impossible speed (>100mph) | ~381 | Excluded post feature-engineering |
+| Inconsistent fare total | varies | Excluded when `total_amount` ≠ sum of components (±$1 tolerance) |
 | Null passenger count | 300 | Filled with mode (1) |
 | Null rate code | 200 | Filled with mode (1) |
 

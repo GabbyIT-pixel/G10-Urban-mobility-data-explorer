@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "etl"))
 
-from clean import clean, engineer, identify_issues
+from clean import clean, engineer, identify_issues, fare_component_mismatch
 
 
 def make_sample_df():
@@ -162,6 +162,90 @@ def test_speed_filter_removes_impossible_speeds():
     print(" test_speed_filter_removes_impossible_speeds PASSED")
 
 
+def make_fare_consistency_df():
+    """
+    Two trips: the first reconciles (total == sum of components), the second
+    does not (total understates the components by $5). Used to isolate the
+    fare-consistency check from the other cleaning rules.
+    """
+    base = datetime(2024, 1, 15, 10, 0, 0)
+    data = {
+        "VendorID":              [1, 2],
+        "tpep_pickup_datetime":  [base, base],
+        "tpep_dropoff_datetime": [base + timedelta(minutes=10),
+                                  base + timedelta(minutes=12)],
+        "passenger_count":       [1, 2],
+        "trip_distance":         [2.0, 3.0],
+        "RatecodeID":            [1, 1],
+        "PULocationID":          [100, 200],
+        "DOLocationID":          [50, 60],
+        "payment_type":          [1, 1],
+        "fare_amount":           [10.0, 20.0],
+        "tip_amount":            [2.0, 3.0],
+        "tolls_amount":          [0.0, 0.0],
+        "total_amount":          [12.0, 18.0],   # row 0 OK (10+2); row 1 off by 5 (20+3=23)
+        "congestion_surcharge":  [0.0, 0.0],
+        "airport_fee":           [0.0, 0.0],
+        "pu_borough":            ["Manhattan", "Brooklyn"],
+        "do_borough":            ["Brooklyn", "Queens"],
+        "pu_zone":               ["Zone A", "Zone B"],
+        "do_zone":               ["Zone C", "Zone D"],
+    }
+    return pd.DataFrame(data)
+
+
+def test_fare_component_mismatch_detects_inconsistent_total():
+    """total_amount that doesn't match the sum of components is flagged."""
+    df = make_fare_consistency_df()
+    mismatch = fare_component_mismatch(df)
+    assert mismatch.iloc[0] == False   # 10 + 2 == 12 -> consistent
+    assert mismatch.iloc[1] == True    # 20 + 3 != 18 -> inconsistent
+    print(" test_fare_component_mismatch_detects_inconsistent_total PASSED")
+
+
+def test_fare_component_mismatch_respects_tolerance():
+    """Differences within the tolerance (rounding) are not flagged."""
+    df = make_fare_consistency_df()
+    # Row 1 is off by exactly $5; a $5 tolerance must not flag it.
+    assert fare_component_mismatch(df, tolerance=5.0).iloc[1] == False
+    # A tiny rounding-sized gap stays unflagged under the default tolerance.
+    df.loc[0, "total_amount"] = 12.5   # 10 + 2 = 12, off by 0.5 < 1.0 default
+    assert fare_component_mismatch(df).iloc[0] == False
+    print(" test_fare_component_mismatch_respects_tolerance PASSED")
+
+
+def test_clean_rejects_fare_mismatch():
+    """The inconsistent-fare row is removed and labeled in the dead-letter log."""
+    df = make_fare_consistency_df()
+    clean_df, rejected = clean(df)
+    assert len(clean_df) == 1
+    assert len(rejected) == 1
+    assert (rejected["reason"] == "fare_mismatch").all()
+    print(" test_clean_rejects_fare_mismatch PASSED")
+
+
+def test_identify_issues_counts_fare_mismatch():
+    df = make_fare_consistency_df()
+    issues = identify_issues(df)
+    assert issues["fare_mismatch"] == 1
+    print(" test_identify_issues_counts_fare_mismatch PASSED")
+
+
+def test_engineer_adds_tip_percentage():
+    """tip_percentage is derived as tip / fare * 100, with safe handling of $0 fares."""
+    df = make_fare_consistency_df()
+    clean_df, _ = clean(df)
+    result = engineer(clean_df)
+
+    assert "tip_percentage" in result.columns
+    # Surviving row: fare 10, tip 2 -> 20.0%
+    row = result.iloc[0]
+    assert row["tip_percentage"] == 20.0
+    # No NaN / inf leaks through into the feature
+    assert result["tip_percentage"].notna().all()
+    print(" test_engineer_adds_tip_percentage PASSED")
+
+
 def run_all_tests():
     print("=" * 60)
     print("Running ETL Unit Tests — Group 10")
@@ -172,6 +256,11 @@ def run_all_tests():
     test_engineer_adds_derived_features()
     test_airport_flag_detection()
     test_speed_filter_removes_impossible_speeds()
+    test_fare_component_mismatch_detects_inconsistent_total()
+    test_fare_component_mismatch_respects_tolerance()
+    test_clean_rejects_fare_mismatch()
+    test_identify_issues_counts_fare_mismatch()
+    test_engineer_adds_tip_percentage()
     print("=" * 60)
     print("All tests completed.")
     print("=" * 60)
