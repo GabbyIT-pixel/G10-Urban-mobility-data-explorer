@@ -1,9 +1,5 @@
-/**
- * Fetch helpers for all backend API endpoints.
- */
-
+// api.js - handles all fetch calls to the Flask backend
 const API = "http://127.0.0.1:5000/api";
-
 async function apiFetch(endpoint) {
   try {
     const res = await fetch(`${API}${endpoint}`);
@@ -14,7 +10,6 @@ async function apiFetch(endpoint) {
     return null;
   }
 }
-
 async function fetchSummary() {
   return apiFetch("/summary");
 }
@@ -51,7 +46,6 @@ async function fetchDSABenchmark() {
 async function fetchBoroughs() {
   return apiFetch("/boroughs");
 }
-
 async function fetchTrips(params = {}) {
   const qs = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
