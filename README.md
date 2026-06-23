@@ -353,7 +353,7 @@ Full dead-letter log: `backend/data/logs/dead_letter.csv`
 
 ## Video Walkthrough
 
-*(Link to be added before submission)*
+*https://youtu.be/xWKViNBauAo?si=CPtQKrabsS_z1y-8*
 
 ---
 
